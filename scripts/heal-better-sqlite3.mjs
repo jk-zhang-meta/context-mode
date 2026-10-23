@@ -236,7 +236,7 @@ export function detectWindowsVsYear({
  * @returns {NodeJS.ProcessEnv}
  */
 function buildSafeEnv(safePython, base = process.env) {
-  const env = { ...base };
+  const env = { ...base, npm_config_bin_links: "false", npm_config_omit: "dev" };
   if (safePython) {
     // node-gyp reads env.PYTHON (see lib/find-python.js — second slot in
     // its `checks` array, before any PATH-based fallback).

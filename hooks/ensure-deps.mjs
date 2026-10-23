@@ -74,6 +74,7 @@ export async function ensureDeps() {
       try {
         execSync(`${process.platform === "win32" ? "npm.cmd" : "npm"} install ${pkg} --no-package-lock --no-save --silent`, {
           cwd: root,
+          env: { ...process.env, npm_config_bin_links: "false", npm_config_omit: "dev" },
           stdio: "pipe",
           timeout: 120000,
           shell: true,
@@ -192,6 +193,7 @@ export function ensureNativeCompat(pluginRoot) {
       }
       execSync(`${process.platform === "win32" ? "npm.cmd" : "npm"} rebuild better-sqlite3 --ignore-scripts=false`, {
         cwd: pluginRoot,
+        env: { ...process.env, npm_config_bin_links: "false", npm_config_omit: "dev" },
         stdio: "pipe",
         timeout: 60000,
         shell: true,
@@ -211,6 +213,7 @@ export function ensureNativeCompat(pluginRoot) {
       // ABI mismatch or missing native binary — rebuild for current Node version
       execSync(`${process.platform === "win32" ? "npm.cmd" : "npm"} rebuild better-sqlite3 --ignore-scripts=false`, {
         cwd: pluginRoot,
+        env: { ...process.env, npm_config_bin_links: "false", npm_config_omit: "dev" },
         stdio: "pipe",
         timeout: 60000,
         shell: true,

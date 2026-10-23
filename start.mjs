@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { execSync, spawn } from "node:child_process";
+import { execSync, execFileSync, spawn } from "node:child_process";
 import { existsSync, chmodSync, readFileSync, writeFileSync, readdirSync, symlinkSync, mkdirSync, lstatSync, unlinkSync } from "node:fs";
 import { dirname, resolve, join, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -505,6 +505,7 @@ import "./hooks/ensure-deps.mjs";
       const child = useNodeCli
         ? spawn(process.execPath, [NPM_CLI_JS, "install", pkg, ...NPM_FLAGS], {
             cwd: __dirname,
+            env: { ...process.env, npm_config_bin_links: "false", npm_config_omit: "dev" },
             stdio: "ignore",
             detached: true,
             shell: false,
@@ -512,6 +513,7 @@ import "./hooks/ensure-deps.mjs";
           })
         : spawn(NPM_BIN, ["install", pkg, ...NPM_FLAGS], {
             cwd: __dirname,
+            env: { ...process.env, npm_config_bin_links: "false", npm_config_omit: "dev" },
             stdio: "ignore",
             detached: true,
             // npm on Windows ships as a `.cmd` shim — must go through cmd.exe.
@@ -602,14 +604,14 @@ if (existsSync(resolve(__dirname, "server.bundle.mjs"))) {
   await import("./server.bundle.mjs");
 } else {
   // Dev or npm install — full build
-  if (!existsSync(resolve(__dirname, "node_modules"))) {
+  if (!existsSync(resolve(__dirname, "node_modules", "typescript", "bin", "tsc"))) {
     try {
-      execSync("npm install --silent", { cwd: __dirname, stdio: "pipe", timeout: 60000 });
+      execSync("npm install --silent", { cwd: __dirname, env: { ...process.env, npm_config_bin_links: "false" }, stdio: "pipe", timeout: 60000 });
     } catch { /* best effort */ }
   }
   if (!existsSync(resolve(__dirname, "build", "server.js"))) {
     try {
-      execSync("npx tsc --silent", { cwd: __dirname, stdio: "pipe", timeout: 30000 });
+      execFileSync(process.execPath, [resolve(__dirname, "node_modules/typescript/bin/tsc")], { cwd: __dirname, stdio: "pipe", timeout: 30000 });
     } catch { /* best effort */ }
   }
   await import("./build/server.js");
